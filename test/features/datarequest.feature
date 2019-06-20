@@ -90,7 +90,7 @@ Feature: Datarequest
 
 
 # DQL-29: Data Requests - Update email notifications
-    Scenario: Creating a new data requet should email the Admin users of the organisation
+    Scenario: Creating a new data request should email the Admin users of the organisation
         Given "CKANUser" as the persona
         When I log in and go to datarequest page
         And I click the link with text that contains "Add data request"
