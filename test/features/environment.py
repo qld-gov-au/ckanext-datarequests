@@ -14,9 +14,50 @@ REMOTE_CHROME_URL = 'http://chrome:4444/wd/hub'
 
 # @see .docker/scripts/init.sh for credentials.
 PERSONAS = {
-    'Admin': dict(
+    'SysAdmin': dict(
         name=u'admin',
         email=u'admin@localhost',
+        password=u'password'
+    ),
+    'Unathenticated': dict(
+        name=u'',
+        email=u'',
+        password=u''
+    ),
+    # This user will not be assigned to any organisations
+    'CKANUser': dict(
+        name=u'ckan_user',
+        email=u'ckan_user@localhost',
+        password=u'password'
+    ),
+    'SalsaAdmin': dict(
+        name=u'salsa_admin',
+        email=u'salsa_admin@localhost',
+        password=u'password'
+    ),
+    'SalsaEditor': dict(
+        name=u'salsa_editor',
+        email=u'salsa_editor@localhost',
+        password=u'password'
+    ),
+    'SalsaMember': dict(
+        name=u'salsa_member',
+        email=u'salsa_member@localhost',
+        password=u'password'
+    ),
+    'DataRequestAdmin': dict(
+        name=u'dr_admin',
+        email=u'dr_admin@localhost',
+        password=u'password'
+    ),
+    'DataRequestEditor': dict(
+        name=u'dr_editor',
+        email=u'dr_editor@localhost',
+        password=u'password'
+    ),
+    'DataRequestMember': dict(
+        name=u'dr_member',
+        email=u'dr_member@localhost',
         password=u'password'
     )
 }
@@ -27,7 +68,8 @@ def before_all(context):
     context.screenshots_dir = os.path.join(ROOT_PATH, 'test/screenshots')
     # The path where file attachments can be found.
     context.attachment_dir = os.path.join(ROOT_PATH, 'test/fixtures')
-
+    # The path where emails can be found.
+    context.mail_path = os.path.join(ROOT_PATH, 'test/emails')
     # Set base url for all relative links.
     context.base_url = BASE_URL
 

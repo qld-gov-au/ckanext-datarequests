@@ -121,8 +121,22 @@ commands:
   test-bdd:
     usage: Run BDD tests.
     cmd: |
+      ahoy start-mailmock &
       ahoy cli "behave ${*:-/app/test/features}" || \
-      [ "${ALLOW_BDD_FAIL:-0}" -eq 1 ]
+      [ "${ALLOW_BDD_FAIL:-0}" -eq 1 ] ;
+      ahoy stop-mailmock
+
+  start-mailmock:
+    usage: Starts email mock server used for email BDD tests
+    cmd: |
+      ahoy title 'Starting mailmock'
+      ahoy cli "cd /app/ckan/default/bin/ && ./mailmock -p 8025 -o /app/test/emails --no-stdout"
+
+  stop-mailmock:
+    usage: Stops email mock server used for email BDD tests
+    cmd: |
+      ahoy title 'Stopping mailmock'
+      ahoy cli "killall -2 mailmock"
 
   # Utilities.
   title:
