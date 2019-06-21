@@ -97,6 +97,6 @@ Feature: Datarequest
         And I fill in title with random text
         And I fill in "description" with "Test description"
         And I press the element with xpath "//button[contains(string(), 'Create data request')]"
-        When I wait for 2 seconds
+        When I wait for 3 seconds
         And I should receive an email at "dr_admin@localhost" with subject "Queensland Government Open Data - Data Request"
         And I should receive an email at "admin@localhost" with subject "Queensland Government Open Data - Data Request"
