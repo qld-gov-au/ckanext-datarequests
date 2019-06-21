@@ -4,7 +4,7 @@ behaving==1.5.6
 flake8==3.7.7
 nose==1.3.7
 mock
-nose_parameterized
+nose_parameterized==0.3.3
 profanityfilter
 lxml==3.4.2
 -e git+https://github.com/qld-gov-au/ckanext-data-qld@develop#egg=ckanext-data_qld
