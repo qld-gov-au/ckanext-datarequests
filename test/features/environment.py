@@ -30,32 +30,32 @@ PERSONAS = {
         email=u'ckan_user@localhost',
         password=u'password'
     ),
-    'SalsaAdmin': dict(
-        name=u'salsa_admin',
-        email=u'salsa_admin@localhost',
+    'TestOrgAdmin': dict(
+        name=u'test_org_admin',
+        email=u'test_org_admin@localhost',
         password=u'password'
     ),
-    'SalsaEditor': dict(
-        name=u'salsa_editor',
-        email=u'salsa_editor@localhost',
+    'TestOrgEditor': dict(
+        name=u'test_org_editor',
+        email=u'test_org_editor@localhost',
         password=u'password'
     ),
-    'SalsaMember': dict(
-        name=u'salsa_member',
-        email=u'salsa_member@localhost',
+    'TestOrgMember': dict(
+        name=u'test_org_member',
+        email=u'test_org_member@localhost',
         password=u'password'
     ),
-    'DataRequestAdmin': dict(
+    'DataRequestOrgAdmin': dict(
         name=u'dr_admin',
         email=u'dr_admin@localhost',
         password=u'password'
     ),
-    'DataRequestEditor': dict(
+    'DataRequestOrgEditor': dict(
         name=u'dr_editor',
         email=u'dr_editor@localhost',
         password=u'password'
     ),
-    'DataRequestMember': dict(
+    'DataRequestOrgMember': dict(
         name=u'dr_member',
         email=u'dr_member@localhost',
         password=u'password'
