@@ -1,9 +1,11 @@
-from behave import when
+from behave import when, then
 from behaving.web.steps import *  # noqa: F401, F403
 from behaving.personas.steps import *  # noqa: F401, F403
 from behaving.web.steps.url import when_i_visit_url
 from behaving.mail.steps import *
 import random
+import email
+import quopri
 
 @when('I go to homepage')
 def go_to_home(context):
@@ -41,4 +43,17 @@ def title_random_text(context):
     assert context.persona
     context.execute_steps(u"""
         When I fill in "title" with "Test Title {0}"
-    """.format(random.randrange(100)) )
+    """.format(random.randrange(1000)) )
+
+# The default behaving step does not convert base64 emails
+# Modifed the default step to decode the payload from base64
+@then(u'I should receive an email at "{address}" containing "{text}"')
+def should_receive_email_containing_text(context, address, text):
+    def filter_contents(mail):
+        mail = email.message_from_string(mail)
+        payload = mail.get_payload()
+        payload += "=" * ((4 - len(payload) % 4) % 4) # do fix the padding error issue
+        decoded_payload = quopri.decodestring(payload).decode('base64')
+        return text in decoded_payload
+
+    assert context.mail.user_messages(address, filter_contents)

@@ -88,14 +88,63 @@ Feature: Datarequest
         | TestOrgMember         |
 
 
-# Data Requests - Update email notifications
+# Data Requests - Email notifications
     Scenario: Creating a new data request should email the Admin users of the organisation
-        Given "CKANUser" as the persona
+        Given "TestOrgEditor" as the persona
         When I log in and go to datarequest page
         And I click the link with text that contains "Add data request"
         And I fill in title with random text
         And I fill in "description" with "Test description"
         And I press the element with xpath "//button[contains(string(), 'Create data request')]"
         When I wait for 3 seconds
-        And I should receive an email at "dr_admin@localhost" with subject "Queensland Government Open Data - Data Request"
+        Then I should receive an email at "dr_admin@localhost" with subject "Queensland Government Open Data - Data Request"
+        And I should receive an email at "dr_admin@localhost" containing "A new data request has been added and assigned to your organisation."
         And I should receive an email at "admin@localhost" with subject "Queensland Government Open Data - Data Request"
+        And I should receive an email at "admin@localhost" containing "A new data request has been added and assigned to your organisation."
+
+    Scenario: Closing a data request should email the creator
+        Given "DataRequestOrgAdmin" as the persona
+        When I log in and go to datarequest page
+        And I click the link with text that contains "Add data request"
+        And I fill in title with random text
+        And I fill in "description" with "Test description"
+        And I press the element with xpath "//button[contains(string(), 'Create data request')]"
+        And I press the element with xpath "//a[contains(string(), 'Close')]"
+        And I press the element with xpath "//button[contains(string(), 'Close data request')]"
+        When I wait for 3 seconds
+        Then I should receive an email at "dr_admin@localhost" with subject "Queensland Government Open Data - Data Request"
+        And I should receive an email at "dr_admin@localhost" containing "Your data request has been closed."
+
+    Scenario: Re-Opening a data request should email the Admin users of the organisation and creator
+        Given "DataRequestOrgAdmin" as the persona
+        When I log in and go to datarequest page
+        And I click the link with text that contains "Add data request"
+        And I fill in title with random text
+        And I fill in "description" with "Test description"
+        And I press the element with xpath "//button[contains(string(), 'Create data request')]"
+        And I press the element with xpath "//a[contains(string(), 'Close')]"
+        And I press the element with xpath "//button[contains(string(), 'Close data request')]"
+        And I press the element with xpath "//a[@class='btn btn-success' and contains(string(), ' Re-open')]"
+        When I wait for 3 seconds
+        Then I should receive an email at "dr_admin@localhost" with subject "Queensland Government Open Data - Data Request"
+        And I should receive an email at "dr_admin@localhost" containing "Your data request has been re-opened."
+        And I should receive an email at "admin@localhost" with subject "Queensland Government Open Data - Data Request"
+        And I should receive an email at "admin@localhost" containing "A data request assigned to your organisation has been re-opened."
+
+     Scenario: Re-assigning a data request should email the Admin users of the assigned organisation and un-assigned organisation
+        Given "DataRequestOrgAdmin" as the persona
+        When I log in and go to datarequest page
+        And I click the link with text that contains "Add data request"
+        And I fill in title with random text
+        And I fill in "description" with "Test description"
+        And I press the element with xpath "//button[contains(string(), 'Create data request')]"
+        And I press the element with xpath "//a[contains(string(), 'Manage')]"
+        When I wait for 3 seconds
+        # Have to use JS to change the selected value as the behaving framework does not work with autocomplete dropdown
+        Then I execute the script "document.getElementById('field-organizations').value = document.getElementById('field-organizations').options[1].value"
+        And I press the element with xpath "//button[contains(string(), 'Update data request')]"
+        When I wait for 3 seconds
+        Then I should receive an email at "admin@localhost" with subject "Queensland Government Open Data - Data Request"
+        And I should receive an email at "admin@localhost" containing "A data request that was assigned to your organisation has been re-assigned to another organisation."
+        And I should receive an email at "test_org_admin@localhost" with subject "Queensland Government Open Data - Data Request"
+        And I should receive an email at "test_org_admin@localhost" containing "A new data request has been added and assigned to your organisation."
