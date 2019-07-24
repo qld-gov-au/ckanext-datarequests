@@ -1,4 +1,4 @@
-from behave import when, then
+from behave import step
 from behaving.web.steps import *  # noqa: F401, F403
 from behaving.personas.steps import *  # noqa: F401, F403
 from behaving.web.steps.url import when_i_visit_url
@@ -7,12 +7,12 @@ import random
 import email
 import quopri
 
-@when('I go to homepage')
+@step('I go to homepage')
 def go_to_home(context):
     when_i_visit_url(context, '/')
 
 
-@when('I log in')
+@step('I log in')
 def log_in(context):
 
     assert context.persona
@@ -22,7 +22,7 @@ def log_in(context):
         And I press the element with xpath "//button[contains(string(), 'Login')]"
     """)
 
-@when('I log in and go to datarequest page')
+@step('I log in and go to datarequest page')
 def log_in_go_to_datarequest(context):
 
     assert context.persona
@@ -33,11 +33,11 @@ def log_in_go_to_datarequest(context):
         And I go to datarequest page
     """)
 
-@when('I go to datarequest page')
+@step('I go to datarequest page')
 def go_to_datarequest(context):
     when_i_visit_url(context, '/datarequest')
 
-@when('I fill in title with random text')
+@step('I fill in title with random text')
 def title_random_text(context):
 
     assert context.persona
@@ -47,13 +47,14 @@ def title_random_text(context):
 
 # The default behaving step does not convert base64 emails
 # Modifed the default step to decode the payload from base64
-@then(u'I should receive an email at "{address}" containing "{text}"')
-def should_receive_email_containing_text(context, address, text):
+@step(u'I should receive a base64 email at "{address}" containing "{text}"')
+def should_receive_base64_email_containing_text(context, address, text):
     def filter_contents(mail):
         mail = email.message_from_string(mail)
         payload = mail.get_payload()
         payload += "=" * ((4 - len(payload) % 4) % 4) # do fix the padding error issue
         decoded_payload = quopri.decodestring(payload).decode('base64')
+        print ('decoded_payload: ', decoded_payload)
         return text in decoded_payload
 
     assert context.mail.user_messages(address, filter_contents)
