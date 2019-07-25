@@ -1,20 +1,20 @@
-@smoke	
-Feature: Login	
+@smoke @login
+Feature: Login
 
-     Scenario: Login process	
-        Given "SysAdmin" as the persona	
-        When I go to homepage	
-        And I click the link with text that contains "Log in"	
-        And I fill in "login" with "$name"	
-        And I fill in "password" with "$password"	
-        # Login is a button without "name" or "id".	
-        And I press the element with xpath "//button[contains(string(), 'Login')]"	
-        And I take a screenshot	
-        Then I should see an element with xpath "//a[contains(string(), 'Log out')]"	
+    Scenario: Smoke test to ensure Login process works
+        Given "SysAdmin" as the persona
+        When I go to homepage
+        And I click the link with text that contains "Log in"
+        And I fill in "login" with "$name"
+        And I fill in "password" with "$password"
+        # Login is a button without "name" or "id".
+        And I press the element with xpath "//button[contains(string(), 'Login')]"
+        And I take a screenshot
+        Then I should see an element with xpath "//a[contains(string(), 'Log out')]"
 
-     Scenario: Login step	
-        Given "SysAdmin" as the persona	
-         When I go to homepage	
-         And I click the link with text that contains "Log in"
-         When I log in	
-         Then I take a screenshot
+    Scenario: Smoke test to ensure Login step works
+        Given "SysAdmin" as the persona
+        When I go to homepage
+        And I click the link with text that contains "Log in"
+        And I log in
+        Then I take a screenshot

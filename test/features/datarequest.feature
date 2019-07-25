@@ -1,27 +1,24 @@
+@data-requests
 Feature: Datarequest
 
-# Data Requests - Install and configure extensionUAT - the Data Requests are accessible via the /datarequest URL (does not display a 404 error)
-    Scenario: Browse to data request page
+    Scenario: Data Requests are accessible via the /datarequest URL
         When I go to datarequest page
         Then the browser's URL should contain "/datarequest"
 
 
-# Data Base & Form updatesUAT - when visiting the /datarequests page as a non-logged in user, the button at the top of the page reads "Login to create a data request" and links to the /user/login page
-    Scenario: View 'Login to create data request' button when not logged in
+    Scenario: When visiting the datarequests page as a non-logged in user, the button at the top of the page reads Login to create a data request
         When I go to datarequest page
         Then I should see an element with xpath "//a[contains(string(), 'Login to create data request')]"
 
 
-# Data Base & Form updatesUAT - after logging in, the user is redirected to the /datarequests page and the "Add Data Request" button is visible
-    Scenario: Clicking 'Login to create data request' button will redirect to login page
+    Scenario: After logging in, the user is redirected to the datarequests page and the "Add Data Request" button is visible
         Given "SysAdmin" as the persona
         When I go to datarequest page
         And I click the link with text "Login to create data request"
-        And I log in
+        And I enter my credentials and login
         Then I should see an element with xpath "//a[contains(string(), 'Add data request')]"
 
-# Data Base & Form updatesUAT - data requests submitted without a description will produce an error message
-    Scenario: Submit new data request without description value will show error message
+    Scenario: Data requests submitted without a description will produce an error message
         Given "SysAdmin" as the persona
         When I log in and go to datarequest page
         And I click the link with text that contains "Add data request"
@@ -31,10 +28,9 @@ Feature: Datarequest
         And I should see "The form contains invalid entries" within 1 seconds    
         And I should see an element with the css selector "span.error-block" within 1 seconds
         And I should see "Description cannot be empty" within 1 seconds
-    
 
-# Data Requests - Ability to Re-open Data RequestUAT - Sysadmin or Admin users of the assigned organisation for a data request can see a "Re-open" button on the data request detail page for closed data requests
-    Scenario Outline: Admin users should see Re-open button on closed data request
+
+    Scenario Outline: Sysadmin or Admin users of the assigned organisation for a data request can see a "Re-open" button on the data request detail page for closed data requests
         Given "<User>" as the persona
         When I log in and go to datarequest page
         And I press "Closed Request"
@@ -45,7 +41,7 @@ Feature: Datarequest
         | SysAdmin              |
         | DataRequestOrgAdmin   |
 
-    Scenario Outline: Non-admin users should not see Re-open button on closed data request
+    Scenario Outline: Non-admin users should not see "Re-open" button on the data request detail page for closed data requests
         Given "<User>" as the persona
         When I log in and go to datarequest page
         And I press "Closed Request"
@@ -60,8 +56,8 @@ Feature: Datarequest
         | TestOrgEditor         |
         | TestOrgMember         |
 
-# Data Requests - Ability to Re-open Data RequestUAT - the data request creator, Sysadmin and Admin users of the assigned organisation for a data request can see a "Close" button on the data request detail page for opened data requests
-    Scenario Outline: Admin users should see Close button on open data request
+
+    Scenario Outline: Data request creator, Sysadmin and Admin users of the assigned organisation for a data request can see a "Close" button on the data request detail page for opened data requests
         Given "<User>" as the persona
         When I log in and go to datarequest page
         And I press "Test Request"
@@ -72,7 +68,7 @@ Feature: Datarequest
         | SysAdmin              |
         | DataRequestOrgAdmin   |
 
-    Scenario Outline: Non admin users should not see Close button on open data request
+    Scenario Outline: Non admin users cannot not see a "Close" button on the data request detail page for opened data requests
         Given "<User>" as the persona
         When I log in and go to datarequest page
         And I press "Test Request"
@@ -87,9 +83,7 @@ Feature: Datarequest
         | TestOrgEditor         |
         | TestOrgMember         |
 
-
-# Data Requests - Email notifications
-    Scenario: Creating a new data request should email the Admin users of the organisation
+    Scenario: Creating a new data request will email the Admin users of the organisation
         Given "TestOrgEditor" as the persona
         When I log in and go to datarequest page
         And I click the link with text that contains "Add data request"
@@ -102,7 +96,7 @@ Feature: Datarequest
         And I should receive an email at "admin@localhost" with subject "Queensland Government Open Data - Data Request"
         And I should receive a base64 email at "admin@localhost" containing "A new data request has been added and assigned to your organisation."
 
-    Scenario: Closing a data request should email the creator
+    Scenario: Closing a data request will email the creator
         Given "DataRequestOrgAdmin" as the persona
         When I log in and go to datarequest page
         And I click the link with text that contains "Add data request"
@@ -115,7 +109,7 @@ Feature: Datarequest
         Then I should receive an email at "dr_admin@localhost" with subject "Queensland Government Open Data - Data Request"
         And I should receive a base64 email at "dr_admin@localhost" containing "Your data request has been closed."
 
-    Scenario: Re-Opening a data request should email the Admin users of the organisation and creator
+    Scenario: Re-Opening a data request will email the Admin users of the organisation and creator
         Given "DataRequestOrgAdmin" as the persona
         When I log in and go to datarequest page
         And I click the link with text that contains "Add data request"
@@ -131,7 +125,7 @@ Feature: Datarequest
         And I should receive an email at "admin@localhost" with subject "Queensland Government Open Data - Data Request"
         And I should receive a base64 email at "admin@localhost" containing "A data request assigned to your organisation has been re-opened."
 
-     Scenario: Re-assigning a data request should email the Admin users of the assigned organisation and un-assigned organisation
+     Scenario: Re-assigning a data request will email the Admin users of the assigned organisation and un-assigned organisation
         Given "DataRequestOrgAdmin" as the persona
         When I log in and go to datarequest page
         And I click the link with text that contains "Add data request"
