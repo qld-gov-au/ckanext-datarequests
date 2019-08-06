@@ -33,7 +33,7 @@ from pylons import config
 
 def get_config_bool_value(config_name, default_value=False):
     value = config.get(config_name, default_value)
-    value = value if type(value) == bool else value != 'False'
+    value = tk.asbool(value)
     return value
 
 def is_fontawesome_4():
