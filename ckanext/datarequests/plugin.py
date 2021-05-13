@@ -59,8 +59,11 @@ class DataRequestsPlugin(p.SingletonPlugin):
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
     p.implements(p.IConfigurer)
-    p.implements(p.IRoutes, inherit=True)
     p.implements(p.ITemplateHelpers)
+    if tk.check_ckan_version(min_version='2.8.0'):
+        p.implements(p.IBlueprint, inherit=True)
+    else:
+        p.implements(p.IRoutes, inherit=True)
 
     # ITranslation only available in 2.5+
     try:
@@ -217,6 +220,12 @@ class DataRequestsPlugin(p.SingletonPlugin):
                       action='delete_comment', conditions={'method': ['GET', 'POST']})
 
         return m
+
+    # IBlueprint
+
+    def get_blueprint(self):
+        import views
+        return views.get_blueprints(self.comments_enabled)
 
     ######################################################################
     ######################### ITEMPLATESHELPER ###########################
