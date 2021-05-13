@@ -64,7 +64,7 @@ class ViewTest(unittest.TestCase):
             'auth_user_obj': controller.c.userobj
         }
 
-        self.controller_instance = controller.DataRequestsUI()
+        self.controller_instance = controller
 
     def tearDown(self):
         controller.tk = self._tk
@@ -202,8 +202,7 @@ class ViewTest(unittest.TestCase):
                 self.assertEquals({}, controller.c.errors_summary)
                 self.assertEquals({}, controller.c.datarequest)
                 controller.helpers.url_for.assert_called_once_with(
-                    named_route='datarequest.',
-                    action='show', id=datarequest_id)
+                    named_route='datarequest.show', id=datarequest_id)
                 controller.tk.redirect_to.assert_called_once_with(controller.helpers.url_for.return_value)
         else:
             controller.tk.abort.assert_called_once_with(403, 'Unauthorized to create a Data Request')
