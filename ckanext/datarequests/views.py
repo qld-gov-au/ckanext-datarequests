@@ -28,30 +28,15 @@ from six.moves.urllib.parse import urlencode
 from flask import Blueprint
 
 from ckan import model
-from ckan.common import request
 from ckan.lib import helpers
 from ckan.plugins import toolkit as tk
-from ckanext.datarequests import constants
-
-import request_helpers
+from ckanext.datarequests import constants, request_helpers
 
 
 _link = re.compile(r'(?:(https?://)|(www\.))(\S+\b/?)([!"#$%&\'()*+,\-./:;<=>?@[\\\]^_`{|}~]*)(\s|$)', re.I)
 
 log = logging.getLogger(__name__)
 c = tk.c
-
-
-
-def get_first(values, default=None):
-    """ Retrieve the first value from the specified list, or the provided
-    default if it isn't present.
-    """
-    if values:
-        returnValue = values[0]
-    else:
-        returnValue = None
-    return returnValue or default
 
 
 def _get_errors_summary(errors):
@@ -111,16 +96,16 @@ def _show_index(user_id, organization_id, include_organization_facet, url_func, 
 
     try:
         context = _get_context()
-        page = int(get_first(request_helpers.get_query_params('page'), 1))
+        page = int(request_helpers.get_first_query_param('page', 1))
         limit = constants.DATAREQUESTS_PER_PAGE
         offset = (page - 1) * constants.DATAREQUESTS_PER_PAGE
         data_dict = {'offset': offset, 'limit': limit}
 
-        state = get_first(request_helpers.get_query_params('state'))
+        state = request_helpers.get_first_query_param('state')
         if state:
             data_dict['closed'] = True if state == 'closed' else False
 
-        q = get_first(request_helpers.get_query_params('q'), '')
+        q = request_helpers.get_first_query_param('q', '')
         if q:
             data_dict['q'] = q
 
@@ -130,7 +115,7 @@ def _show_index(user_id, organization_id, include_organization_facet, url_func, 
         if user_id:
             data_dict['user_id'] = user_id
 
-        sort = get_first(request_helpers.get_query_params('sort'), 'desc')
+        sort = request_helpers.get_first_query_param('sort', 'desc')
         sort = sort if sort in ['asc', 'desc'] else 'desc'
         if sort is not None:
             data_dict['sort'] = sort
@@ -172,19 +157,19 @@ def _show_index(user_id, organization_id, include_organization_facet, url_func, 
 
 
 def index():
-    return _show_index(None, get_first(request_helpers.get_query_params('organization'), ''), True, search_url, 'datarequests/index.html')
+    return _show_index(None, request_helpers.get_first_query_param('organization', ''), True, search_url, 'datarequests/index.html')
 
 
 def _process_post(action, context):
     # If the user has submitted the form, the data request must be created
-    if request_helpers.has_post_params():
+    if request_helpers.get_post_params():
         data_dict = {}
-        data_dict['title'] = get_first(request_helpers.get_post_params('title'), '')
-        data_dict['description'] = get_first(request_helpers.get_post_params('description'), '')
-        data_dict['organization_id'] = get_first(request_helpers.get_post_params('organization_id'), '')
+        data_dict['title'] = request_helpers.get_first_post_param('title', '')
+        data_dict['description'] = request_helpers.get_first_post_param('description', '')
+        data_dict['organization_id'] = request_helpers.get_first_post_param('organization_id', '')
 
         if action == constants.UPDATE_DATAREQUEST:
-            data_dict['id'] = get_first(request_helpers.get_post_params('id'), '')
+            data_dict['id'] = request_helpers.get_first_post_param('id', '')
 
         try:
             result = tk.get_action(action)(context, data_dict)
@@ -297,7 +282,7 @@ def user_datarequests(id):
     context = _get_context()
     c.user_dict = tk.get_action('user_show')(context, {'id': id, 'include_num_followers': True})
     url_func = functools.partial(user_datarequest_url, id=id)
-    return _show_index(id, get_first(request_helpers.get_query_params('organization'), ''), True, url_func, 'user/datarequests.html')
+    return _show_index(id, request_helpers.get_first_query_param('organization', ''), True, url_func, 'user/datarequests.html')
 
 
 def close(id):
@@ -330,7 +315,7 @@ def close(id):
 
         if tk.h.closing_circumstances_enabled:
             # This is required so the form can set the currently selected close_circumstance option in the select dropdown
-            c.datarequest['close_circumstance'] = get_first(request_helpers.get_post_params('close_circumstance'), None)
+            c.datarequest['close_circumstance'] = request_helpers.get_first_post_param('close_circumstance')
 
         return tk.render('datarequests/close.html')
 
@@ -340,14 +325,14 @@ def close(id):
 
         if c.datarequest.get('closed', False):
             tk.abort(403, tk._('This data request is already closed'))
-        elif request_helpers.has_post_params():
+        elif request_helpers.get_post_params():
             data_dict = {}
-            data_dict['accepted_dataset_id'] = get_first(request_helpers.get_post_params('accepted_dataset_id'))
+            data_dict['accepted_dataset_id'] = request_helpers.get_first_post_param('accepted_dataset_id')
             data_dict['id'] = id
             if tk.h.closing_circumstances_enabled:
-                data_dict['close_circumstance'] = get_first(request_helpers.get_post_params('close_circumstance'))
-                data_dict['approx_publishing_date'] = get_first(request_helpers.get_post_params('approx_publishing_date'))
-                data_dict['condition'] = get_first(request_helpers.get_post_params('condition'))
+                data_dict['close_circumstance'] = request_helpers.get_first_post_param('close_circumstance')
+                data_dict['approx_publishing_date'] = request_helpers.get_first_post_param('approx_publishing_date')
+                data_dict['condition'] = request_helpers.get_first_post_param('condition')
 
             tk.get_action(constants.CLOSE_DATAREQUEST)(context, data_dict)
             tk.redirect_to(helpers.url_for(named_route='datarequest.show', id=data_dict['id']))
@@ -377,10 +362,10 @@ def comment(id):
         # Raises 404 Not Found if the data request does not exist
         c.datarequest = tk.get_action(constants.SHOW_DATAREQUEST)(context, data_dict_dr_show)
 
-        comment_text = get_first(request_helpers.get_post_params('comment'), '')
-        comment_id = get_first(request_helpers.get_post_params('comment-id'), '')
+        comment_text = request_helpers.get_first_post_param('comment', '')
+        comment_id = request_helpers.get_first_post_param('comment-id', '')
 
-        if request_helpers.has_post_params():
+        if request_helpers.get_post_params():
             action = constants.COMMENT_DATAREQUEST
             action_text = 'comment'
 
