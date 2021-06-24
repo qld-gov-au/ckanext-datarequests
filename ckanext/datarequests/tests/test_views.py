@@ -674,7 +674,7 @@ class ViewTest(unittest.TestCase):
     def _test_close(self, organization, post_content=None, errors=None, errors_summary=None, close_datarequest=None):
         controller.tk.response.location = None
         controller.tk.response.status_int = 200
-        request_helpers.request.POST = post_content or {}
+        request_helpers.request.POST = request_helpers.request.form = post_content or {}
         errors = errors or {}
         errors_summary = errors_summary or {}
         if not close_datarequest:

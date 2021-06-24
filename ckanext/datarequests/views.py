@@ -289,7 +289,7 @@ def close(id):
     data_dict = {'id': id}
     context = _get_context()
 
-    # Basic intialization
+    # Basic initialization
     c.datarequest = {}
 
     def _return_page(errors=None, errors_summary=None):
