@@ -11,7 +11,7 @@ Feature: Datarequest
         Then I should see an element with xpath "//a[contains(string(), 'Login to create data request')]"
 
 
-    Scenario: After logging in, the user is redirected to the datarequests page and the "Add Data Request" button is visible
+    Scenario: After logging in, the user is redirected to the datarequests page and the 'Add Data Request' button is visible
         Given "SysAdmin" as the persona
         When I go to datarequest page
         And I click the link with text "Login to create data request"
