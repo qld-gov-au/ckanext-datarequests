@@ -1,11 +1,11 @@
 from behave import step
-from behaving.web.steps import *  # noqa: F401, F403
 from behaving.personas.steps import *  # noqa: F401, F403
+from behaving.web.steps import *  # noqa: F401, F403
 from behaving.web.steps.url import when_i_visit_url
 from behaving.mail.steps import *
-import random
 import email
 import quopri
+import random
 
 
 @step('I go to homepage')
@@ -20,22 +20,28 @@ def log_in(context):
         When I go to homepage
         And I click the link with text that contains "Log in"
         And I enter my credentials and login
-        Then I should see an element with xpath "//a[contains(string(), 'Log out')]"
     """)
 
 
 @step('I enter my credentials and login')
 def submit_login(context):
+    """
+    This differs to the `log_in` function above by logging in directly to a page where the user login form is presented
+    :param context:
+    :return:
+    """
+
     assert context.persona
     context.execute_steps(u"""
         When I fill in "login" with "$name"
         And I fill in "password" with "$password"
         And I press the element with xpath "//button[contains(string(), 'Login')]"
+        Then I should see an element with xpath "//a[@title='Log out']"
     """)
 
 
 @step('I log in and go to datarequest page')
-def log_in_go_to_datarequest(context):
+def log_in_go_to_datarequest_page(context):
     assert context.persona
     context.execute_steps(u"""
         When I log in
@@ -44,7 +50,7 @@ def log_in_go_to_datarequest(context):
 
 
 @step('I go to datarequest page')
-def go_to_datarequest(context):
+def go_to_datarequest_page(context):
     when_i_visit_url(context, '/datarequest')
 
 
