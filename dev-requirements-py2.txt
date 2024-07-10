@@ -16,3 +16,4 @@ requests
 six>=1.15.0
 splinter>=0.13.0,<0.17
 xlrd==1.2.0
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
