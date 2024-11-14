@@ -29,12 +29,6 @@ Feature: Datarequest
         And I should see an element with xpath "//ol[contains(@class, 'breadcrumb')]//a[contains(@href, '/user') and contains(string(), 'Users')]"
         And I should see an element with xpath "//ol[contains(@class, 'breadcrumb')]//a[contains(@href, '/user/') and contains(string(), 'CKAN User')]"
 
-    @unauthenticated
-    Scenario: User's data request page is not accessible anonymously
-        Given "Unauthenticated" as the persona
-        When I go to "/user/datarequest/admin"
-        Then I should see an element with xpath "//*[contains(string(), 'Not authorized to see this page')]"
-
     Scenario: Data requests submitted without a description will produce an error message
         Given "SysAdmin" as the persona
         When I log in

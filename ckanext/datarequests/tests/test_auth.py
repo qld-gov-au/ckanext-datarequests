@@ -17,12 +17,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with CKAN Data Requests Extension. If not, see <http://www.gnu.org/licenses/>.
 
-
-from ckanext.datarequests import auth, constants
-import unittest
-
 from mock import MagicMock
 from parameterized import parameterized
+import pytest
+import unittest
+
+from ckan.tests import factories
+import ckan.plugins.toolkit as tk
+
+from ckanext.datarequests import auth, constants
+from ckanext.datarequests.controllers import controller_functions
 
 # Needed for the test
 context = {
@@ -144,3 +148,9 @@ class AuthTest(unittest.TestCase):
             xyz_show.assert_called_once_with({'ignore_auth': True}, {'id': request_data['id']})
         else:
             assert 0 == auth.get_action.call_count
+
+    @pytest.mark.ckan_config("ckan.auth.public_user_details", False)
+    def test_user_datarequests_are_hidden_with_user_profile(self):
+        user = factories.User()
+        with pytest.raises(tk.NotAuthorized):
+            controller_functions.user(user['id'])
