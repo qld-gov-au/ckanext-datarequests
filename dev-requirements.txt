@@ -1,10 +1,8 @@
-behave==1.2.6
-behaving==2.0.0
+behaving==3.1.5
 ckanapi==4.3
 ckantoolkit>=0.0.4
 factory-boy
-flake8==3.8.3
-messytables==0.15.2
+flake8==6.0.0
 mock
 parameterized==0.8.1
 profanityfilter
@@ -12,6 +10,6 @@ progressbar==2.5
 pytest-ckan
 python-magic==0.4.18
 requests
+selenium<4.10
 six>=1.15.0
-splinter>=0.13.0,<0.17
 xlrd==1.2.0
