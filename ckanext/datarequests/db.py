@@ -22,9 +22,10 @@ import uuid
 import logging
 
 from ckan import model
+from ckan.model.meta import mapper, metadata
 from ckanext.datarequests import constants
 
-from sqlalchemy import func, MetaData, DDL
+from sqlalchemy import func, DDL
 from sqlalchemy.sql.expression import or_
 
 from . import common
@@ -122,7 +123,7 @@ class DataRequestFollower(model.DomainObject):
 closing_circumstances_enabled = common.get_config_bool_value('ckan.datarequests.enable_closing_circumstances', False)
 
 # FIXME: References to the other tables...
-datarequests_table = sa.Table('datarequests', model.meta.metadata,
+datarequests_table = sa.Table('datarequests', metadata,
                               sa.Column('user_id', sa.types.UnicodeText, primary_key=False, default=u''),
                               sa.Column('id', sa.types.UnicodeText, primary_key=True, default=uuid4),
                               sa.Column('title', sa.types.Unicode(constants.NAME_MAX_LENGTH), primary_key=True, default=u''),
@@ -139,10 +140,10 @@ datarequests_table = sa.Table('datarequests', model.meta.metadata,
                               extend_existing=True,
                               )
 
-model.meta.mapper(DataRequest, datarequests_table)
+mapper(DataRequest, datarequests_table)
 
 # FIXME: References to the other tables...
-comments_table = sa.Table('datarequests_comments', model.meta.metadata,
+comments_table = sa.Table('datarequests_comments', metadata,
                           sa.Column('id', sa.types.UnicodeText, primary_key=True, default=uuid4),
                           sa.Column('user_id', sa.types.UnicodeText, primary_key=False, default=u''),
                           sa.Column('datarequest_id', sa.types.UnicodeText, primary_key=True, default=uuid4),
@@ -151,10 +152,10 @@ comments_table = sa.Table('datarequests_comments', model.meta.metadata,
                           extend_existing=True
                           )
 
-model.meta.mapper(Comment, comments_table,)
+mapper(Comment, comments_table,)
 
 # FIXME: References to the other tables...
-followers_table = sa.Table('datarequests_followers', model.meta.metadata,
+followers_table = sa.Table('datarequests_followers', metadata,
                            sa.Column('id', sa.types.UnicodeText, primary_key=True, default=uuid4),
                            sa.Column('user_id', sa.types.UnicodeText, primary_key=False, default=u''),
                            sa.Column('datarequest_id', sa.types.UnicodeText, primary_key=True, default=uuid4),
@@ -162,21 +163,14 @@ followers_table = sa.Table('datarequests_followers', model.meta.metadata,
                            extend_existing=True
                            )
 
-model.meta.mapper(DataRequestFollower, followers_table,)
+mapper(DataRequestFollower, followers_table,)
 
 
 def init_db(deprecated_model=None):
 
-    # Create the table only if it does not exist
-    datarequests_table.create(checkfirst=True)
+    metadata.create_all(model.meta.engine)
 
     update_db()
-
-    # Create the table only if it does not exist
-    comments_table.create(checkfirst=True)
-
-    # Create the table only if it does not exist
-    followers_table.create(checkfirst=True)
 
 
 def update_db(deprecated_model=None):
@@ -185,16 +179,13 @@ def update_db(deprecated_model=None):
     This is required because adding new columns to sqlalchemy metadata will not get created if the table already exists
     '''
 
-    meta = MetaData()
-    meta.reflect(model.Session.get_bind())
-
     # Check to see if columns exists and create them if they do not exists
     if closing_circumstances_enabled:
-        if 'datarequests' in meta.tables:
-            if 'close_circumstance' not in meta.tables['datarequests'].columns:
+        if 'datarequests' in metadata.tables:
+            if 'close_circumstance' not in metadata.tables['datarequests'].columns:
                 log.info("DataRequests-UpdateDB: 'close_circumstance' field does not exist, adding...")
                 DDL('ALTER TABLE "datarequests" ADD COLUMN "close_circumstance" varchar({0}) NULL'.format(constants.CLOSE_CIRCUMSTANCE_MAX_LENGTH)).execute(model.Session.get_bind())
 
-            if 'approx_publishing_date' not in meta.tables['datarequests'].columns:
+            if 'approx_publishing_date' not in metadata.tables['datarequests'].columns:
                 log.info("DataRequests-UpdateDB: 'approx_publishing_date' field does not exist, adding...")
                 DDL('ALTER TABLE "datarequests" ADD COLUMN "approx_publishing_date" timestamp NULL').execute(model.Session.get_bind())
