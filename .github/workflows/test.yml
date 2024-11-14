@@ -38,16 +38,22 @@ jobs:
       - name: Retrieve logs
         if: always()
         run: ahoy logs
-        timeout-minutes: 5
+        timeout-minutes: 1
 
-      - name: Retrieve screenshots
-        if: failure()
+      - name: Retrieve results
+        if: always()
         run: bin/process-artifacts.sh
         timeout-minutes: 1
 
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "/tmp/artifacts/junit/*.xml"
+        if: always()
+
       - name: Upload screenshots
-        if: failure()
-        uses: actions/upload-artifact@v3
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: CKAN ${{ matrix.ckan-version }} screenshots
           path: /tmp/artifacts/behave/screenshots
