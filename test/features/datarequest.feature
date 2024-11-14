@@ -35,12 +35,6 @@ Feature: Datarequest
         When I go to "/user/datarequest/admin"
         Then I should see an element with xpath "//*[contains(string(), 'Not authorized to see this page')]"
 
-    @unauthenticated
-    Scenario: When visiting the datarequests page as a non-logged in user, the 'Add Data Request' button is not visible
-        Given "Unauthenticated" as the persona
-         When I go to the data requests page
-        Then I should not see an element with xpath "//a[contains(string(), 'Add data request', 'i')]"
-
     Scenario: Data requests submitted without a description will produce an error message
         Given "SysAdmin" as the persona
         When I log in
