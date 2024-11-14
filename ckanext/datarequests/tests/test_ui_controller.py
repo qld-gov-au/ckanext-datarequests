@@ -882,12 +882,12 @@ class UIControllerTest(unittest.TestCase):
             controller.tk.abort.assert_called_once_with(403, 'You are not authorized to %s' % action)
             assert result == 'aborted'
 
-        elif type(comment_or_update_exception) == controller.tk.ObjectNotFound:
+        elif isinstance(comment_or_update_exception, controller.tk.ObjectNotFound):
             controller.tk.abort.assert_called_once_with(404, str(comment_or_update_exception))
             assert result == 'aborted'
 
         else:
-            if type(comment_or_update_exception) == controller.tk.ValidationError:
+            if isinstance(comment_or_update_exception, controller.tk.ValidationError):
                 # Abort never called
                 assert 0 == controller.tk.abort.call_count
 
