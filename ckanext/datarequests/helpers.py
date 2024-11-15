@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with CKAN Data Requests Extension. If not, see <http://www.gnu.org/licenses/>.
 
-from ckan.common import c
 import ckan.plugins.toolkit as tk
 
 from . import db
@@ -37,7 +36,7 @@ def get_open_datarequests_number():
 
 
 def is_following_datarequest(datarequest_id):
-    return len(db.DataRequestFollower.get(datarequest_id=datarequest_id, user_id=c.userobj.id)) > 0
+    return len(db.DataRequestFollower.get(datarequest_id=datarequest_id, user_id=tk.g.userobj.id)) > 0
 
 
 def get_open_datarequests_badge(show_badge):

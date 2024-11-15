@@ -8,18 +8,18 @@
 
 {% block primary_content_inner %}
 
-  {% snippet "datarequests/snippets/comments.html", comments=c.comments, datarequest=c.datarequest, errors=c.errors, errors_summary=c.errors_summary, updated_comment=c.updated_comment %}
+  {% snippet "datarequests/snippets/comments.html", comments=comments, datarequest=datarequest, errors=errors, errors_summary=errors_summary, updated_comment=updated_comment %}
 
-  {% if h.check_access('comment_datarequest', {'id':c.datarequest.id }) %}
+  {% if h.check_access('comment_datarequest', {'id':datarequest.id }) %}
     <div class="comment-new">
 
-      {% set create_comment_error = c.updated_comment is defined and c.updated_comment.id == '' %}
-      
+      {% set create_comment_error = updated_comment is defined and updated_comment.id == '' %}
+
       {% if create_comment_error %}
         <a name="comment_focus"></a>
       {% endif %}
-      
-      {% snippet "datarequests/snippets/comment_form.html", datarequest=c.datarequest, errors=c.errors, errors_summary=c.errors_summary, offering=c.offering, initial_text=c.updated_comment.comment if create_comment_error, focus=create_comment_error, current_user=c.userobj %}
+
+      {% snippet "datarequests/snippets/comment_form.html", datarequest=datarequest, errors=errors, errors_summary=errors_summary, initial_text=updated_comment.comment if create_comment_error, focus=create_comment_error, current_user=current_user %}
     </div>
   {% endif %}
 

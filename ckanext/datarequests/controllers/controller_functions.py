@@ -10,7 +10,7 @@ from six.moves.urllib.parse import urlencode
 from ckan import model
 from ckan.lib import helpers, captcha
 from ckan.plugins import toolkit as tk
-from ckan.plugins.toolkit import c, h, request, _
+from ckan.plugins.toolkit import g, h, request, _
 
 from ckanext.datarequests import constants, request_helpers
 
@@ -55,7 +55,7 @@ def user_datarequest_url(params, id):
 
 def _get_context():
     return {'model': model, 'session': model.Session,
-            'user': c.user, 'auth_user_obj': c.userobj}
+            'user': g.user, 'auth_user_obj': g.userobj}
 
 
 def _show_index(user_id, organization_id, include_organization_facet, url_func, file_to_render, extra_vars=None):
@@ -102,41 +102,30 @@ def _show_index(user_id, organization_id, include_organization_facet, url_func, 
         tk.check_access(constants.LIST_DATAREQUESTS, context, data_dict)
         datarequests_list = tk.get_action(constants.LIST_DATAREQUESTS)(context, data_dict)
 
-        c.filters = [(tk._('Newest'), 'desc'), (tk._('Oldest'), 'asc')]
-        c.sort = sort
-        c.q = q
-        c.organization = organization_id
-        c.state = state
-        c.datarequest_count = datarequests_list['count']
-        c.datarequests = datarequests_list['result']
-        c.search_facets = datarequests_list['facets']
-        c.page = helpers.Page(
+        if not extra_vars:
+            extra_vars = {}
+        extra_vars['filters'] = [(tk._('Newest'), 'desc'), (tk._('Oldest'), 'asc')]
+        extra_vars['sort'] = sort
+        extra_vars['q'] = q
+        extra_vars['organization'] = organization_id
+        extra_vars['state'] = state
+        extra_vars['datarequest_count'] = datarequests_list['count']
+        extra_vars['datarequests'] = datarequests_list['result']
+        extra_vars['search_facets'] = datarequests_list['facets']
+        extra_vars['page'] = helpers.Page(
             collection=datarequests_list['result'],
             page=page,
             url=functools.partial(pager_url, state, sort),
             item_count=datarequests_list['count'],
             items_per_page=limit
         )
-        c.facet_titles = {
+        extra_vars['facet_titles'] = {
             'state': tk._('State'),
         }
-
         # Organization facet cannot be shown when the user is viewing an org
         if include_organization_facet is True:
-            c.facet_titles['organization'] = tk._('Organizations')
+            extra_vars['facet_titles']['organization'] = tk._('Organizations')
 
-        if not extra_vars:
-            extra_vars = {}
-        extra_vars['filters'] = c.filters
-        extra_vars['sort'] = c.sort
-        extra_vars['q'] = c.q
-        extra_vars['organization'] = c.organization
-        extra_vars['state'] = c.state
-        extra_vars['datarequest_count'] = c.datarequest_count
-        extra_vars['datarequests'] = c.datarequests
-        extra_vars['search_facets'] = c.search_facets
-        extra_vars['page'] = c.page
-        extra_vars['facet_titles'] = c.facet_titles
         if 'user' not in extra_vars:
             extra_vars['user'] = None
         if 'user_dict' not in extra_vars:
@@ -172,43 +161,53 @@ def _process_post(action, context):
             captcha.check_recaptcha(request)
             result = tk.get_action(action)(context, data_dict)
             return tk.redirect_to(tk.url_for('datarequest.show', id=result['id']))
-
         except tk.ValidationError as e:
             log.warning(e)
             # Fill the fields that will display some information in the page
-            c.datarequest = {
-                'id': data_dict.get('id', ''),
-                'title': data_dict.get('title', ''),
-                'description': data_dict.get('description', ''),
-                'organization_id': data_dict.get('organization_id', '')
+            return {
+                'datarequest': {
+                    'id': data_dict.get('id', ''),
+                    'title': data_dict.get('title', ''),
+                    'description': data_dict.get('description', ''),
+                    'organization_id': data_dict.get('organization_id', ''),
+                },
+                'errors': e.error_dict,
+                'errors_summary': _get_errors_summary(e.error_dict),
             }
-            c.errors = e.error_dict
-            c.errors_summary = _get_errors_summary(c.errors)
         except captcha.CaptchaError:
             error_msg = _(u'Bad Captcha. Please try again.')
             h.flash_error(error_msg)
             # Fill the fields that will display some information in the page
-            c.datarequest = {
-                'id': data_dict.get('id', ''),
-                'title': data_dict.get('title', ''),
-                'description': data_dict.get('description', ''),
-                'organization_id': data_dict.get('organization_id', '')
+            return {
+                'datarequest': {
+                    'id': data_dict.get('id', ''),
+                    'title': data_dict.get('title', ''),
+                    'description': data_dict.get('description', ''),
+                    'organization_id': data_dict.get('organization_id', ''),
+                }
             }
+    return {}
 
 
 def new():
     context = _get_context()
 
     # Basic initialization
-    c.datarequest = {}
-    c.errors = {}
-    c.errors_summary = {}
+    extra_vars = {
+        'datarequest': {},
+        'errors': {},
+        'errors_summary': {},
+    }
 
     # Check access
     try:
         tk.check_access(constants.CREATE_DATAREQUEST, context, None)
         post_result = _process_post(constants.CREATE_DATAREQUEST, context)
-        return post_result or tk.render('datarequests/new.html')
+        if isinstance(post_result, dict):
+            extra_vars.update(post_result)
+            return tk.render('datarequests/new.html', extra_vars=extra_vars)
+        else:
+            return post_result
     except tk.NotAuthorized as e:
         log.warning(e)
         return tk.abort(403, tk._('Unauthorized to create a Data Request'))
@@ -220,12 +219,14 @@ def show(id):
 
     try:
         tk.check_access(constants.SHOW_DATAREQUEST, context, data_dict)
-        c.datarequest = tk.get_action(constants.SHOW_DATAREQUEST)(context, data_dict)
+        extra_vars = {
+            'datarequest': tk.get_action(constants.SHOW_DATAREQUEST)(context, data_dict)
+        }
 
         context_ignore_auth = context.copy()
         context_ignore_auth['ignore_auth'] = True
 
-        return tk.render('datarequests/show.html')
+        return tk.render('datarequests/show.html', extra_vars=extra_vars)
     except tk.ObjectNotFound:
         return tk.abort(404, tk._('Data Request %s not found') % id)
     except tk.NotAuthorized as e:
@@ -238,16 +239,23 @@ def update(id):
     context = _get_context()
 
     # Basic initialization
-    c.datarequest = {}
-    c.errors = {}
-    c.errors_summary = {}
+    extra_vars = {
+        'datarequest': {},
+        'errors': {},
+        'errors_summary': {},
+    }
 
     try:
         tk.check_access(constants.UPDATE_DATAREQUEST, context, data_dict)
-        c.datarequest = tk.get_action(constants.SHOW_DATAREQUEST)(context, data_dict)
-        c.original_title = c.datarequest.get('title')
+        current_datarequest = tk.get_action(constants.SHOW_DATAREQUEST)(context, data_dict)
+        extra_vars['datarequest'] = current_datarequest
+        extra_vars['original_title'] = current_datarequest.get('title')
         post_result = _process_post(constants.UPDATE_DATAREQUEST, context)
-        return post_result or tk.render('datarequests/edit.html')
+        if isinstance(post_result, dict):
+            extra_vars.update(post_result)
+            return tk.render('datarequests/edit.html', extra_vars=extra_vars)
+        else:
+            return post_result
     except tk.ObjectNotFound as e:
         log.warning(e)
         return tk.abort(404, tk._('Data Request %s not found') % id)
@@ -275,22 +283,22 @@ def delete(id):
 
 def organization(id):
     context = _get_context()
-    c.group_dict = tk.get_action('organization_show')(context, {'id': id})
+    group_dict = tk.get_action('organization_show')(context, {'id': id})
     url_func = functools.partial(org_datarequest_url, id=id)
     return _show_index(None, id, False, url_func, 'organization/datarequests.html',
-                       extra_vars={'group_dict': c.group_dict})
+                       extra_vars={'group_dict': group_dict})
 
 
 def user(id):
     context = _get_context()
     try:
-        c.user_dict = tk.get_action('user_show')(context, {'id': id, 'include_num_followers': True})
+        user_dict = tk.get_action('user_show')(context, {'id': id, 'include_num_followers': True})
     except tk.NotAuthorized:
-        tk.abort(403, tk._(u'Not authorized to see this page'))
+        return tk.abort(403, tk._(u'Not authorized to see this page'))
     url_func = functools.partial(user_datarequest_url, id=id)
     return _show_index(id, request_helpers.get_first_query_param('organization', ''), True, url_func,
                        'user/datarequests.html',
-                       extra_vars={'user': c.user_dict, 'user_dict': c.user_dict})
+                       extra_vars={'user': user_dict, 'user_dict': user_dict})
 
 
 def close(id):
@@ -298,7 +306,9 @@ def close(id):
     context = _get_context()
 
     # Basic initialization
-    c.datarequest = {}
+    extra_vars = {
+        'datarequest': {}
+    }
 
     def _return_page(errors=None, errors_summary=None):
         errors = errors or {}
@@ -309,7 +319,7 @@ def close(id):
         # We assume that a user will close their data request with a recently added or modified dataset
         # In the future, we should fix this with an autocomplete form...
         search_data_dict = {'rows': 500}
-        organization_id = c.datarequest.get('organization_id', '')
+        organization_id = extra_vars['datarequest'].get('organization_id', '')
         if organization_id:
             log.debug("Loading datasets for organisation %s", organization_id)
             search_data_dict['q'] = 'owner_org:' + organization_id
@@ -319,23 +329,23 @@ def close(id):
         base_datasets = tk.get_action('package_search')({'ignore_auth': True}, search_data_dict)['results']
 
         log.debug("Dataset candidates for closing data request: %s", base_datasets)
-        c.datasets = []
-        c.errors = errors
-        c.errors_summary = errors_summary
+        extra_vars['datasets'] = []
+        extra_vars['errors'] = errors
+        extra_vars['errors_summary'] = errors_summary
         for dataset in base_datasets:
-            c.datasets.append({'name': dataset.get('name'), 'title': dataset.get('title')})
+            extra_vars['datasets'].append({'name': dataset.get('name'), 'title': dataset.get('title')})
 
         if h.closing_circumstances_enabled:
             # This is required so the form can set the currently selected close_circumstance option in the select dropdown
-            c.datarequest['close_circumstance'] = request_helpers.get_first_post_param('close_circumstance', None)
+            extra_vars['datarequest']['close_circumstance'] = request_helpers.get_first_post_param('close_circumstance', None)
 
-        return tk.render('datarequests/close.html')
+        return tk.render('datarequests/close.html', extra_vars=extra_vars)
 
     try:
         tk.check_access(constants.CLOSE_DATAREQUEST, context, data_dict)
-        c.datarequest = tk.get_action(constants.SHOW_DATAREQUEST)(context, data_dict)
+        extra_vars['datarequest'] = tk.get_action(constants.SHOW_DATAREQUEST)(context, data_dict)
 
-        if c.datarequest.get('closed', False):
+        if extra_vars['datarequest'].get('closed', False):
             return tk.abort(403, tk._('This data request is already closed'))
         elif request_helpers.get_post_params():
             data_dict = {}
@@ -372,7 +382,10 @@ def comment(id):
         tk.check_access(constants.LIST_DATAREQUEST_COMMENTS, context, data_dict_comment_list)
 
         # Raises 404 Not Found if the data request does not exist
-        c.datarequest = tk.get_action(constants.SHOW_DATAREQUEST)(context, data_dict_dr_show)
+        extra_vars = {
+            'datarequest': tk.get_action(constants.SHOW_DATAREQUEST)(context, data_dict_dr_show),
+            'current_user': g.userobj,
+        }
 
         comment_text = request_helpers.get_first_post_param('comment', '')
         comment_id = request_helpers.get_first_post_param('comment-id', '')
@@ -402,8 +415,8 @@ def comment(id):
                 return tk.abort(403, tk._('You are not authorized to %s' % action_text))
             except tk.ValidationError as e:
                 log.warning(e)
-                c.errors = e.error_dict
-                c.errors_summary = _get_errors_summary(c.errors)
+                extra_vars['errors'] = e.error_dict
+                extra_vars['errors_summary'] = _get_errors_summary(e.error_dict)
             except tk.ObjectNotFound as e:
                 log.warning(e)
                 return tk.abort(404, tk._(str(e)))
@@ -416,14 +429,14 @@ def comment(id):
                     'comment': comment_text
                 }
 
-        c.updated_comment = {
+        extra_vars['updated_comment'] = {
             'comment': updated_comment
         }
         # Comments should be retrieved once that the comment has been created
         get_comments_data_dict = {'datarequest_id': id}
-        c.comments = tk.get_action(constants.LIST_DATAREQUEST_COMMENTS)(context, get_comments_data_dict)
+        extra_vars['comments'] = tk.get_action(constants.LIST_DATAREQUEST_COMMENTS)(context, get_comments_data_dict)
 
-        return tk.render('datarequests/comment.html')
+        return tk.render('datarequests/comment.html', extra_vars=extra_vars)
 
     except tk.ObjectNotFound as e:
         log.warning(e)
