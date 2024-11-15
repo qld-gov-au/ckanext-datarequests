@@ -41,6 +41,9 @@ for extension in . `ls -d $SRC_DIR/ckanext-*`; do
     install_requirements $extension requirements pip-requirements
 done
 pip install -e .
+# force override of Splinter version to handle newer Selenium
+pip install "splinter>0.20"
+
 installed_name=$(grep '^\s*name=' setup.py |sed "s|[^']*'\([-a-zA-Z0-9]*\)'.*|\1|")
 
 # Validate that the extension was installed correctly.
