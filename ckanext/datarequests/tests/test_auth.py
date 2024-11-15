@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with CKAN Data Requests Extension. If not, see <http://www.gnu.org/licenses/>.
 
-
-from ckanext.datarequests import auth, constants
-import unittest
-
 from mock import MagicMock
 from parameterized import parameterized
+import unittest
+
+from ckanext.datarequests import auth, constants
 
 # Needed for the test
 context = {

@@ -7,16 +7,16 @@
 {% block page_primary_action %}
   {% if h.check_access('create_datarequest') %}
     <div class="page_primary_action">
-      {% link_for _('Add Data Request'), named_route='datarequest.new', organization=c.group_dict.id, class_='btn btn-primary', icon=h.get_plus_icon() %}
+      {% link_for _('Add Data Request'), named_route='datarequest.new', organization=group_dict.id, class_='btn btn-primary', icon=h.get_plus_icon() %}
     </div>
   {% endif %}
-  {% snippet 'snippets/custom_search_form.html', query=c.q, fields=(('state', c.state),), sorting=c.filters, sorting_selected=c.sort, placeholder=_('Search Data Requests...'), no_bottom_border=true, count=c.datarequest_count, no_title=True %}
-  {{ h.snippet('datarequests/snippets/datarequest_list.html', datarequest_count=c.datarequest_count, datarequests=c.datarequests, page=c.page, q=c.q)}}
+  {% snippet 'snippets/custom_search_form.html', query=q, fields=(('state', state),), sorting=filters, sorting_selected=sort, placeholder=_('Search Data Requests...'), no_bottom_border=true, count=datarequest_count, no_title=True %}
+  {{ h.snippet('datarequests/snippets/datarequest_list.html', datarequest_count=datarequest_count, datarequests=datarequests, page=page, q=q)}}
 {% endblock %}
 
 {% block secondary_content %}
   {{ super() }}
-  {% for facet in c.facet_titles %}
-    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id': c.group_dict.name}) }}
+  {% for facet in facet_titles %}
+    {{ h.snippet('snippets/facet_list.html', title=facet_titles[facet], name=facet, extras={'id': group_dict.name}) }}
   {% endfor %}
 {% endblock %}

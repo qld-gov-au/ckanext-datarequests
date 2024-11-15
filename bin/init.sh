@@ -4,9 +4,9 @@
 #
 set -e
 
-. ${APP_DIR}/bin/activate
+. "${APP_DIR}"/bin/activate
 CLICK_ARGS="--yes" ckan_cli db clean
 ckan_cli db init
 
-# Add data request tables
+echo "Creating data request tables..."
 ckan_cli datarequests init-db

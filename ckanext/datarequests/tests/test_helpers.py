@@ -32,14 +32,11 @@ class HelpersTest(unittest.TestCase):
         self.db_patch = patch('ckanext.datarequests.helpers.db')
         self.db_patch.start()
 
-        self._c = helpers.c
-        helpers.c = MagicMock()
-        helpers.c.userobj.id = '12345'
+        helpers.tk.g.userobj.id = '12345'
 
     def tearDown(self):
         self.tk_patch.stop()
         self.db_patch.stop()
-        helpers.c = self._c
 
     def test_get_comments_number(self):
         # Mocking

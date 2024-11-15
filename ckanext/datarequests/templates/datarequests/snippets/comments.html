@@ -6,8 +6,8 @@
   {% endblock %}
 </h2>
 
-{% if c.errors_summary %}
-{{ form.errors(c.errors_summary) }}
+{% if errors_summary %}
+{{ form.errors(errors_summary) }}
 {% endif %}
 
 {% if comments %}

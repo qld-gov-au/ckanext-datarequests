@@ -25,7 +25,7 @@ from ckan.plugins.toolkit import config
 
 def get_config_bool_value(config_name, default_value=False):
     value = config.get(config_name, default_value)
-    value = value if type(value) == bool else value != 'False'
+    value = value if isinstance(value, bool) else value != 'False'
     return value
 
 
