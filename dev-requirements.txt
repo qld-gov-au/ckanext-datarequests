@@ -10,6 +10,6 @@ progressbar==2.5
 pytest-ckan
 python-magic==0.4.18
 requests
-selenium<4.16
+selenium<4.27
 six>=1.15.0
 xlrd==1.2.0
