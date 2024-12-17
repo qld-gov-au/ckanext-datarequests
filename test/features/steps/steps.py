@@ -60,10 +60,11 @@ def log_in_directly(context):
     :return:
     """
 
-    assert context.persona, "A persona is required to log in, found [{}] in context. Have you configured the personas in before_scenario?".format(context.persona)
+    assert context.persona, "A persona is required to log in, found [{}] in context." \
+        " Have you configured the personas in before_scenario?".format(context.persona)
     context.execute_steps(u"""
         When I attempt to log in with password "$password"
-        Then I should see an element with xpath "//a[@title='Log out']"
+        Then I should see an element with xpath "//*[@title='Log out' or @data-bs-title='Log out']/i[contains(@class, 'fa-sign-out')]"
     """)
 
 
@@ -441,11 +442,7 @@ def should_receive_base64_email_containing_texts(context, address, text, text2):
         payload_bytes = quopri.decodestring(payload)
         if len(payload_bytes) > 0:
             payload_bytes += b'='  # do fix the padding error issue
-        if six.PY2:
-            decoded_payload = payload_bytes.decode('base64')
-        else:
-            import base64
-            decoded_payload = six.ensure_text(base64.b64decode(six.ensure_binary(payload_bytes)))
+        decoded_payload = six.ensure_text(base64.b64decode(six.ensure_binary(payload_bytes)))
         print('Searching for', text, ' and ', text2, ' in decoded_payload: ', decoded_payload)
         return text in decoded_payload and (not text2 or text2 in decoded_payload)
 
