@@ -10,6 +10,9 @@
 {# This provides a full page that renders a form for publishing a dataset. It can
 then itself be extended to add/remove blocks of functionality. #}
 <form class="dataset-form {{ form_horizontal }}" method="post" data-module="basic-form" action enctype="multipart/form-data">
+  {% if 'csrf_input' in h %}
+    {{ h.csrf_input() }}
+  {% endif %}
 
   <input type="hidden" id="id" name="id" value="{{ data.get('id', '') }}" />
 
