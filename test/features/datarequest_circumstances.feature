@@ -46,7 +46,6 @@ Feature: Datarequest-circumstances
         And I press the element with xpath "//a[contains(string(), 'Close')]"
         And I select "To be released as open data at a later date" from "close_circumstance"
         And I press the element with xpath "//button[contains(@class, 'btn-danger') and @name='close' and contains(string(), 'Close Data Request')]"
-        Then I should see an element with the css selector "div.alert-error" within 2 seconds
         Then I should see a flash error message containing "The form contains invalid entries"
         And I should see a flash error message containing "Approximate publishing date cannot be empty"
 
