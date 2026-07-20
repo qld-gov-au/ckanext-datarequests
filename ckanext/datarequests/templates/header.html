@@ -10,7 +10,7 @@
     (dataset_search_route, _('Datasets')),
     (org_index_route, _('Organizations')),
     (group_index_route, _('Groups')),
-    ('datarequest.index', _('Data Requests') + h.get_open_datarequests_badge()),
     (about_route, _('About'))
   ) }}
+  <li><a href="{% url_for 'datarequest.index' %}">{{_('Data Requests')}} {{ h.get_open_datarequests_badge() }}</a></li>
 {% endblock %}
