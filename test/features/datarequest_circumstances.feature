@@ -29,9 +29,8 @@ Feature: Datarequest-circumstances
         And I press the element with xpath "//a[contains(string(), 'Close')]"
         And I select "Open dataset already exists" from "close_circumstance"
         And I press the element with xpath "//button[contains(@class, 'btn-danger') and @name='close' and contains(string(), 'Close Data Request')]"
-        Then I should see an element with the css selector "div.alert-error" within 2 seconds
-        And I should see "The form contains invalid entries" within 1 seconds
-        And I should see "Accepted dataset cannot be empty" within 1 seconds
+        Then I should see a flash error message containing "The form contains invalid entries"
+        And I should see a flash error message containing "Accepted dataset cannot be empty"
 
         Examples: Users
         | User                  |
@@ -48,8 +47,8 @@ Feature: Datarequest-circumstances
         And I select "To be released as open data at a later date" from "close_circumstance"
         And I press the element with xpath "//button[contains(@class, 'btn-danger') and @name='close' and contains(string(), 'Close Data Request')]"
         Then I should see an element with the css selector "div.alert-error" within 2 seconds
-        And I should see "The form contains invalid entries" within 1 seconds
-        And I should see "Approximate publishing date cannot be empty" within 1 seconds
+        Then I should see a flash error message containing "The form contains invalid entries"
+        And I should see a flash error message containing "Approximate publishing date cannot be empty"
 
         Examples: Users
         | User                  |

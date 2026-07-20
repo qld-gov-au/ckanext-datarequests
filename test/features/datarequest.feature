@@ -40,10 +40,8 @@ Feature: Datarequest
         And I press "Add Data Request"
         And I fill in "title" with "Test data request"
         And I press the element with xpath "//button[contains(@class, 'btn-primary') and contains(string(), 'Create Data Request')]"
-        Then I should see an element with the css selector "div.alert-error" within 2 seconds
-        And I should see "The form contains invalid entries" within 1 seconds
-        And I should see an element with the css selector "span.error-block" within 1 seconds
-        And I should see "Description cannot be empty" within 1 seconds
+        Then I should see a flash error message containing "The form contains invalid entries"
+        And I should see a flash error message containing "Description cannot be empty"
 
     Scenario: When a logged-in user submits a Data Request containing profanity they should receive an error message and the request will not be created
         Given "CKANUser" as the persona

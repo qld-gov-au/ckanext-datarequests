@@ -344,6 +344,14 @@ def test_package_patch(context, package_id):
     assert '"success": true' in response.text
 
 
+@then(u'I should see a flash error message containing "{error_message}"')
+def test_flash_error(context, error_message):
+    context.execute_steps("""
+        Then I should see an element with the css selector "div.flash-messages"
+        And I should see an element with xpath "//div[contains(@class, 'flash-messages')]//div[(contains(@class, 'alert-error') or contains(@class, 'alert-danger')) and contains(string(), '{0}')]"
+    """.format(error_message))
+
+
 # Parse a "key=value::key2=value2" parameter string and return an iterator of (key, value) pairs.
 def _parse_params(param_string):
     params = {}
