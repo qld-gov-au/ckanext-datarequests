@@ -18,7 +18,7 @@ PYTHON_VERSION=py3
 PYTHON="python3"
 SOLR_VERSION=9
 
-if [ "$CKAN_VERSION" = "2.10" ] || [ "$CKAN_VERSION" = "2.9" ]; then
+if [ "$CKAN_VERSION" = "2.10" ]; then
     SOLR_VERSION=8
 fi
 
