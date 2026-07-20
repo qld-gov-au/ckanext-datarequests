@@ -9,6 +9,7 @@ Feature: Comments
         And I go to data request "$last_generated_title" comments
         And I submit a comment with subject "Test subject" and comment "This is a test comment"
         Then I should see "This is a test comment" within 10 seconds
+        And I should see an element with xpath "//ul[contains(@class, 'nav-tabs')]/li/a[contains(@href, '/datarequest/comment')]/span[contains(@class, 'badge')]"
 
     @comment-delete
     Scenario: When an admin visits a data request, they can delete a comment and should not see text 'This comment was deleted.'
