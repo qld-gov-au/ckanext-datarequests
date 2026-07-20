@@ -6,11 +6,10 @@
 {% set about_route = 'home.about' %}
 
 {% block header_site_navigation_tabs %}
-  {{ h.build_nav_main(
-    (dataset_search_route, _('Datasets')),
-    (org_index_route, _('Organizations')),
-    (group_index_route, _('Groups')),
-    (about_route, _('About'))
-  ) }}
-  <li><a href="{% url_for 'datarequest.index' %}">{{_('Data Requests')}} {{ h.get_open_datarequests_badge() }}</a></li>
+  {{ super() }}
+  <li>
+    <a href="{% url_for 'datarequest.index' %}" {% if h.current_url().startswith('/datarequest') %}class="active"{% endif %}>
+      {{_('Data Requests')}} {{ h.get_open_datarequests_badge() }}
+    </a>
+  </li>
 {% endblock %}

@@ -25,7 +25,11 @@
   {{ h.build_nav_icon('datarequest.show', _('Data Request'), id=datarequest_id, icon=h.get_question_icon()) }}
 
   {% if h.show_comments_tab() %}
-    {{ h.build_nav_icon('datarequest.comment', _('Comments') + ' ' + h.get_comments_badge(datarequest_id), id=datarequest_id, icon='comment') }}
+    <li>
+      <a href="{% url_for 'datarequest.comment', id=datarequest_id %}">
+        <i class="fa fa-comment"></i>{{_('Comments')}} {{ h.get_comments_badge(datarequest_id) }}
+      </a>
+    </li>
   {% endif %}
 {% endblock %}
 
