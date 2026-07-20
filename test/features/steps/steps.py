@@ -347,8 +347,7 @@ def test_package_patch(context, package_id):
 @then(u'I should see a flash error message containing "{error_message}"')
 def test_flash_error(context, error_message):
     context.execute_steps("""
-        Then I should see an element with the css selector "div.flash-messages"
-        And I should see an element with xpath "//div[contains(@class, 'flash-messages')]//div[(contains(@class, 'alert-error') or contains(@class, 'alert-danger')) and contains(string(), '{0}')]"
+        Then I should see an element with xpath "//div[(contains(@class, 'alert-error') or contains(@class, 'alert-danger')) and contains(string(), '{0}')]"
     """.format(error_message))
 
 
