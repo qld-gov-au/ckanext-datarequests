@@ -25,7 +25,7 @@ from ckan import model
 from ckan.model.meta import metadata
 from ckanext.datarequests import constants
 
-from sqlalchemy import func, DDL
+from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import or_
 
@@ -184,8 +184,8 @@ def update_db(deprecated_model=None):
         if 'datarequests' in metadata.tables:
             if 'close_circumstance' not in metadata.tables['datarequests'].columns:
                 log.info("DataRequests-UpdateDB: 'close_circumstance' field does not exist, adding...")
-                DDL('ALTER TABLE "datarequests" ADD COLUMN "close_circumstance" varchar({0}) NULL'.format(constants.CLOSE_CIRCUMSTANCE_MAX_LENGTH)).execute(model.Session.get_bind())
+                sa.DDL('ALTER TABLE "datarequests" ADD COLUMN "close_circumstance" varchar({0}) NULL'.format(constants.CLOSE_CIRCUMSTANCE_MAX_LENGTH)).execute(model.Session.get_bind())
 
             if 'approx_publishing_date' not in metadata.tables['datarequests'].columns:
                 log.info("DataRequests-UpdateDB: 'approx_publishing_date' field does not exist, adding...")
-                DDL('ALTER TABLE "datarequests" ADD COLUMN "approx_publishing_date" timestamp NULL').execute(model.Session.get_bind())
+                sa.DDL('ALTER TABLE "datarequests" ADD COLUMN "approx_publishing_date" timestamp NULL').execute(model.Session.get_bind())

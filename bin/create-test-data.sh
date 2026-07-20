@@ -73,6 +73,7 @@ api_call '{"id": "'"${TEST_ORG_ID}"'", "object": "test_org_admin", "object_type"
 api_call '{"id": "'"${TEST_ORG_ID}"'", "object": "test_org_editor", "object_type": "user", "capacity": "editor"}' member_create
 
 api_call '{"id": "'"${TEST_ORG_ID}"'", "object": "test_org_member", "object_type": "user", "capacity": "member"}' member_create
+
 ##
 # END.
 #
