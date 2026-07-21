@@ -22,16 +22,17 @@ Feature: Datarequest
         And I should see an element with xpath "//ol[contains(@class, 'breadcrumb')]//a[contains(@href, '/organization/') and contains(string(), 'Test Organisation')]"
 
     Scenario: User data request page is accessible via the user profile
-        Given "CKANUser" as the persona
+        Given "TestOrgEditor" as the persona
         When I log in
         And I create a datarequest
-        And I go to the "ckan_user" profile page
-        And I press the element with xpath "//ul[contains(@class, 'nav-tabs')]//a[contains(string(), 'Data Requests')]"
+        And I go to the "test_org_editor" profile page
+        Then I should see "Data Requests" within 2 seconds
+        When I press the element with xpath "//ul[contains(@class, 'nav-tabs')]//a[contains(string(), 'Data Requests')]"
         Then the browser's URL should contain "/user/datarequest"
         And I should see an element with xpath "//span[contains(@class, 'item-label') and string() = 'Open']"
         And I should see an element with xpath "//input[contains(@aria-label, 'Search Data Requests')]"
         And I should see an element with xpath "//ol[contains(@class, 'breadcrumb')]//a[contains(@href, '/user') and contains(string(), 'Users')]"
-        And I should see an element with xpath "//ol[contains(@class, 'breadcrumb')]//a[contains(@href, '/user/') and contains(string(), 'CKAN User')]"
+        And I should see an element with xpath "//ol[contains(@class, 'breadcrumb')]//a[contains(@href, '/user/') and contains(string(), 'Test Editor')]"
 
     Scenario: Data requests submitted without a description will produce an error message
         Given "SysAdmin" as the persona
@@ -44,7 +45,7 @@ Feature: Datarequest
         And I should see a flash error message containing "Description cannot be empty"
 
     Scenario: When a logged-in user submits a Data Request containing profanity they should receive an error message and the request will not be created
-        Given "CKANUser" as the persona
+        Given "TestOrgEditor" as the persona
         When I log in
         And I go to the data requests page
         And I press "Add Data Request"

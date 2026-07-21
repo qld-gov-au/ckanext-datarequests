@@ -581,10 +581,13 @@ def create_datarequest(context):
     assert context.persona
     context.execute_steps(u"""
         When I go to the data requests page
-        And I press "Add Data Request"
+        Then I should see an element with xpath "//a[contains(string(), 'Add') and @href = '/datarequest/new']" within 2 seconds
+        When I press the element with xpath "//a[contains(string(), 'Add') and @href = '/datarequest/new']"
         And I fill in title with random text
         And I fill in "description" with "Test description"
         And I press the element with xpath "//button[contains(@class, 'btn-primary')]"
+        # Ensure that the success page loads before continuing
+        Then I should see an element with xpath "//h1[contains(string(), 'Test Title ')]" within 2 seconds
     """)
 
 
