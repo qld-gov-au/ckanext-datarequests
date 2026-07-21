@@ -2,6 +2,9 @@
 {% set form_horizontal = 'form-horizontal' if h.ckan_version()[:3] <= '2.7' else '' %}
 
 <form class="dataset-form {{ form_horizontal }}" method="post" data-module="basic-form" action enctype="multipart/form-data">
+  {% if 'csrf_input' in h %}
+    {{ h.csrf_input() }}
+  {% endif %}
 
   {% block errors %}{{ form.errors(errors_summary) }}{% endblock %}
 

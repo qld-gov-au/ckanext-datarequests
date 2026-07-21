@@ -6,10 +6,7 @@ x-project:
 x-volumes:
   &default-volumes
   volumes:
-    - /app/ckan ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
-    - ./ckanext:/app/ckanext:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
-    - ./test:/app/test:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
-    ##- /app/filestore # Override for environment without host mounts. Automatically uncommented in CI.
+    - /app/filestore # Override for environment without host mounts. Automatically uncommented in CI.
 
 x-environment:
   &default-environment
@@ -73,7 +70,7 @@ services:
       - default
 
   chrome:
-    image: selenium/standalone-chrome:3.141.59-oxygen
+    image: selenium/standalone-chrome:150.0-chromedriver-150.0-grid-4.46.0-20260707
     shm_size: '1gb'
     depends_on:
       - ckan

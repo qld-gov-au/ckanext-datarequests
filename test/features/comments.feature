@@ -9,6 +9,7 @@ Feature: Comments
         And I go to data request "$last_generated_title" comments
         And I submit a comment with subject "Test subject" and comment "This is a test comment"
         Then I should see "This is a test comment" within 10 seconds
+        And I should see an element with xpath "//ul[contains(@class, 'nav-tabs')]/li/a[contains(@href, '/datarequest/comment')]/span[contains(@class, 'badge')]"
 
     @comment-delete
     Scenario: When an admin visits a data request, they can delete a comment and should not see text 'This comment was deleted.'
@@ -23,7 +24,7 @@ Feature: Comments
 
     @comment-add @comment-profane @datarequest
     Scenario: When a logged-in user submits a comment containing profanity on a Data Request they should receive an error message and the comment will not appear
-        Given "CKANUser" as the persona
+        Given "TestOrgEditor" as the persona
         When I log in
         And I create a datarequest
         And I go to data request "$last_generated_title" comments

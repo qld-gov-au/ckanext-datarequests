@@ -4,8 +4,6 @@ import click
 
 from . import db
 
-# Click commands for CKAN 2.9 and above
-
 
 @click.group()
 def datarequests():
