@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.x'
       - name: Install requirements
@@ -26,56 +26,52 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        ckan-version: ['2.12', '2.11', '2.10']
+        experimental: [false]
         include:
-          - ckan-version: "2.11"
-            solr-version: 9
-            experimental: false
-          - ckan-version: "2.10"
-            solr-version: 8
-            experimental: false
-          - ckan-version: 2.9
-            solr-version: 8
-            experimental: false
           - ckan-version: 'master'
-            solr-version: 9
-            experimental: true  #master is unstable, good to know if we are compatible or not
+            experimental: true  # master is unstable, good to know if we are compatible or not
 
-    name: Test on CKAN ${{ matrix.ckan-version }}
+    name: ${{ matrix.experimental && '**Fail_Ignored** ' || '' }} Test on CKAN ${{ matrix.ckan-version }}
     runs-on: ubuntu-latest
-    container: drevops/ci-runner:23.12.0
     env:
       CKAN_VERSION: ${{ matrix.ckan-version }}
-      SOLR_VERSION: ${{ matrix.solr-version }}
 
     steps:
-      # Patch https://github.com/actions/runner/issues/863
-      - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV"
-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        continue-on-error: ${{ matrix.experimental }}
         timeout-minutes: 2
 
-      - name: Build
+      - name: Install Ahoy and dependencies
         continue-on-error: ${{ matrix.experimental }}
+        run: |
+          sudo wget https://github.com/ahoy-cli/ahoy/releases/download/v2.5.0/ahoy-bin-linux-amd64 -O /usr/local/bin/ahoy \
+            && sudo chown $USER /usr/local/bin/ahoy \
+            && chmod +x /usr/local/bin/ahoy
+          sudo wget https://github.com/pygmystack/pygmy/releases/download/v0.14.0/pygmy_0.14.0_linux_amd64.tar.gz -O - | tar xvzf - -C /tmp/ \
+            && sudo mv /tmp/pygmy /usr/local/bin/pygmy
+
+      - name: Build
         run: bin/build.sh
         timeout-minutes: 15
+        continue-on-error: ${{ matrix.experimental }}
 
       - name: Test
-        continue-on-error: ${{ matrix.experimental }}
         run: bin/test.sh
         timeout-minutes: 20
+        continue-on-error: ${{ matrix.experimental }}
 
       - name: Retrieve logs
-        continue-on-error: ${{ matrix.experimental }}
         if: always()
         run: ahoy logs
         timeout-minutes: 1
+        continue-on-error: ${{ matrix.experimental }}
 
       - name: Retrieve results
-        continue-on-error: ${{ matrix.experimental }}
         if: always()
         run: bin/process-artifacts.sh
         timeout-minutes: 1
+        continue-on-error: ${{ matrix.experimental }}
 
       - name: Test Summary
         uses: test-summary/action@v2
@@ -86,9 +82,9 @@ jobs:
 
       - name: Upload screenshots
         if: always()
-        continue-on-error: ${{ matrix.experimental }}
         uses: actions/upload-artifact@v4
         with:
           name: CKAN ${{ matrix.ckan-version }} screenshots
           path: /tmp/artifacts/behave/screenshots
         timeout-minutes: 1
+        continue-on-error: ${{ matrix.experimental }}
